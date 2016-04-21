@@ -89,7 +89,7 @@ def get_recipe(session, id, imgpath):
         r = requests.get(thumb['src'])
 
         m = re.search('recipes/(.+\.jpg)', thumb['src'])
-        with open(imgpath + '/{}'.format(m.group(1)),'wb') as img:
+        with open(imgpath.format(m.group(1)),'wb') as img:
             img.write(r.content)
 
     return title, soup
@@ -162,9 +162,10 @@ if __name__ == '__main__':
     parser.add_argument('directory', nargs="?", default='recipes', help='Directory to which download everything. defaults to "recipes"')
     args = parser.parse_args()
 
-    imgpath = os.path.join(args.directory, 'img')
-    if not os.path.exists(imgpath):
-        os.makedirs(imgpath)
+    imgpath = os.path.join(args.directory, 'img', '{}')
+    if not os.path.exists(imgpath.format("")):
+        os.makedirs(imgpath, exist_ok = True)
+
     session = pp_login(args.username, args.password)
     page = 0
     soup = pp_get_page(session,page)
