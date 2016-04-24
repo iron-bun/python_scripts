@@ -112,7 +112,7 @@ class pepperplate:
         headers = {"User-Agent":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36"}
 
         self.session.headers.update(headers)
-        r = s.get(url)
+        r = self.session.get(url)
 
         soup = BeautifulSoup(r.content)
 
@@ -176,10 +176,7 @@ class pepperplate:
         return self.session != None
 
 def save_recipe(recipe, savepath):
-    filename = recipe.get_title().replace('/','_')
-                                 .replace('"', '')
-                                 .replace(':','')
-                                 .replace(' ','_')
+    filename = recipe.get_title().replace('/','_').replace('"', '').replace(':','').replace(' ','_')
     with open(savepath + '/{}.{}.html'.format(filename, recipe.get_id()), 'wb') as f:
         f.write(recipe.get_new_body())
 
@@ -217,7 +214,7 @@ if __name__ == '__main__':
             time.sleep(1) #sleep 1 second between requests to not mash the server
             recipe = pepperplate_recipe(id, pp.get_recipe(id))
             print('Downloaded {}'.format(recipe.get_title()))
-            save_recipe(id, recipe, args.directory)
+            save_recipe(recipe, args.directory)
 
             if recipe.get_thumbnail():
                 save_file(pp.get_url(recipe.get_thumbnail()), imgpath.format(id + '.jpg'))
