@@ -6,6 +6,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import lxml.html
 import json
 import time
 import getpass
@@ -114,10 +115,9 @@ class pepperplate:
         self.session.headers.update(headers)
         r = self.session.get(url)
 
-        soup = BeautifulSoup(r.content)
-
-        VIEWSTATE = soup.find(id='__VIEWSTATE')['value']
-        EVENTVALIDATION = soup.find(id='__EVENTVALIDATION')['value']
+        login_page = lxml.html.fromstring(r.content)
+        VIEWSTATE = login_page.xpath('//input[@id="__VIEWSTATE"]/@value')[0]
+        EVENTVALIDATION = login_page.xpath('//input[@id="__EVENTVALIDATION"]/@value')[0]
     
         login_data={"__VIEWSTATE":VIEWSTATE,
         "__EVENTVALIDATION":EVENTVALIDATION,
@@ -154,8 +154,8 @@ class pepperplate:
                          ,'Accept-Encoding': 'gzip, deflate'}
         r = self.session.request('POST', url, data=parameters, headers=headers)
 
-        soup = BeautifulSoup(r.json()['d'])
-        self.page = [re.findall(r'id=(\d+)', a['href'])[0] for d in soup.find_all('div',{'class':'item'}) for a in d.find_all('a')]
+        page = lxml.html.fromstring(r.json()['d'])
+        self.page = [re.findall(r'id=(\d+)', a)[0] for a in page.xpath('//div[@class="item"]/p/a/@href')]
         self.last_page = len(self.page) < 20 
 
         return self.page
