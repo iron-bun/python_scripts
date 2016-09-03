@@ -75,23 +75,21 @@ def get_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='Process Duolingo course data into a dot file for graphviz')
     parser.add_argument('filename', nargs='?', help='Name of the file with the Duolingo course data. Requests current data from the Duolino API if ommitted')
-    parser.add_argument('-s','--source_language', nargs='*', default='', type=str, help='Filter to only show courses from the SOURCE_LANGUAGE. Prefix with a "~" to exclude the language instead')
-    parser.add_argument('-d','--dest_language', nargs='*', default='', type=str, help='Filter to only show courses to the DEST_LANGUAGE. Prefix with a "~" to exclude the language instead')
-    parser.add_argument('-p','--phase', nargs='*', type=int, default=[1,2,3], choices=[1,2,3], help='Only show courses in the selected phase(s)')
+    parser.add_argument('-s', '--source_language', nargs='*', default='', type=str, help='Filter to only show courses from the SOURCE_LANGUAGE. Prefix with a "~" to exclude the language instead')
+    parser.add_argument('-d', '--dest_language', nargs='*', default='', type=str, help='Filter to only show courses to the DEST_LANGUAGE. Prefix with a "~" to exclude the language instead')
+    parser.add_argument('-p', '--phase', nargs='*', type=int, default=[1,2,3], choices=[1,2,3], help='Only show courses in the selected phase(s)')
     parser.add_argument('--download', default='', action='store_const', const='Y', help='Download and display the API data for easy output to a file')
-    parser.add_argument('-c','--colours', nargs=3, type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
+    parser.add_argument('-c', '--colours', nargs=3, type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
     return parser.parse_args()
 
 def main():
     args = get_arguments()
 
-    data = None
     if args.download == 'Y':
         print(download_api_data().text)
         return
 
     if not args.filename:
-      #grab the latest course data from the API
       data = get_api_data()
     else:
       data = get_file_data(args.filename)
