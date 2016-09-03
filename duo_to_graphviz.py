@@ -71,6 +71,21 @@ def parse_json(course_data, languages, colours):
             print('};')
     print('}')
 
+def diff_data(data, old_data):
+    courses = []
+    for direction in old_data['directions']:
+        courses.append((direction['from_language_id'], direction['learning_language_id'], direction['phase']))
+
+    idx = 0
+    while idx < len(data['directions']):
+        direction = data['directions'][idx]
+        if (direction['from_language_id'], direction['learning_language_id'], direction['phase']) in courses:
+            data['directions'].pop(idx)
+        else:
+            idx += 1
+
+    return data
+
 def get_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='Process Duolingo course data into a dot file for graphviz')
@@ -80,6 +95,7 @@ def get_arguments():
     parser.add_argument('-p', '--phase', nargs='*', type=int, default=[1,2,3], choices=[1,2,3], help='Only show courses in the selected phase(s)')
     parser.add_argument('--download', default='', action='store_const', const='Y', help='Download and display the API data for easy output to a file')
     parser.add_argument('-c', '--colours', nargs=3, type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
+    parser.add_argument('--diff', nargs='?', default='', help='Only display the differences vs a previous downloaded file of data')
     return parser.parse_args()
 
 def main():
@@ -94,6 +110,8 @@ def main():
     else:
       data = get_file_data(args.filename)
 
+    if args.diff:
+        data = diff_data(data, get_file_data(args.diff))
     
     languages = {code:details['name'] for (code,details) in data['languages'].items()}
 
