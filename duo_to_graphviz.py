@@ -94,8 +94,8 @@ def get_arguments():
     parser.add_argument('-d', '--dest_language', nargs='*', default='', type=str, help='Filter to only show courses to the DEST_LANGUAGE. Prefix with a "~" to exclude the language instead')
     parser.add_argument('-p', '--phase', nargs='*', type=int, default=[1,2,3], choices=[1,2,3], help='Only show courses in the selected phase(s)')
     parser.add_argument('--download', default='', action='store_const', const='Y', help='Download and display the API data for easy output to a file')
-    parser.add_argument('-c', '--colours', nargs=3, type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
-    parser.add_argument('--diff', nargs='?', default='', help='Only display the differences vs a previous downloaded file of data')
+    parser.add_argument('-c', '--colours', nargs=3, metavar='COLOUR', type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
+    parser.add_argument('--diff', nargs=1, metavar='<FILENAME>', type=str, default='', help='Only display the differences vs a previous downloaded file of data')
     return parser.parse_args()
 
 def main():
@@ -111,7 +111,7 @@ def main():
       data = get_file_data(args.filename)
 
     if args.diff:
-        data = diff_data(data, get_file_data(args.diff))
+        data = diff_data(data, get_file_data(args.diff[0]))
     
     languages = {code:details['name'] for (code,details) in data['languages'].items()}
 
