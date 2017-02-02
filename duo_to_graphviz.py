@@ -29,7 +29,12 @@ def get_file_data(f):
       data = load(fp)
     return data
 
-def filter_languages(data, languages, source, dest, phases):
+def filter_phases(data, phases):
+
+    course_data = filter(lambda cd: cd.phase in phases, data)
+    return course_data
+
+def filter_languages(data, languages, source, dest):
 
     include_sources = [l for l in source if l[0] != '~']
     exclude_sources = [l[1:] for l in source if l[0] == '~']
@@ -37,7 +42,7 @@ def filter_languages(data, languages, source, dest, phases):
     include_destinations = [l for l in dest if l[0] != '~']
     exclude_destinations = [l[1:] for l in dest if l[0] == '~']
 
-    course_data = filter(lambda cd: cd.phase in phases and
+    course_data = filter(lambda cd: 
                              ((len(include_sources) == 0 or languages[cd.source].upper() in include_sources) and
                               (languages[cd.source].upper() not in exclude_sources)) and
                              ((len(include_destinations) == 0 or languages[cd.dest].upper() in include_destinations) and
@@ -119,11 +124,14 @@ def main():
 
     course_data = [Language(direction['phase'],direction['from_language_id'],direction['learning_language_id'])
                         for direction in data['directions']]
+
+    if args.phase:
+        course_data = filter_phases(course_data, args.phase)
+
     course_data = filter_languages(course_data,
                         languages,
                         list(map(str.upper, args.source_language)),
-                        list(map(str.upper, args.dest_language)),
-                        args.phase)
+                        list(map(str.upper, args.dest_language)))
 
     colours = {phase:colour for (phase, colour) in zip([1,2,3], args.colours)}
 
