@@ -34,19 +34,14 @@ def filter_phases(data, phases):
     course_data = filter(lambda cd: cd.phase in phases, data)
     return course_data
 
-def filter_languages(data, languages, source, dest):
+def filter_languages(data, languages, filter_arg, source_or_dest):
 
-    include_sources = [l for l in source if l[0] != '~']
-    exclude_sources = [l[1:] for l in source if l[0] == '~']
-
-    include_destinations = [l for l in dest if l[0] != '~']
-    exclude_destinations = [l[1:] for l in dest if l[0] == '~']
+    include = [l for l in filter_arg if l[0] != '~']
+    exclude = [l[1:] for l in filter_arg if l[0] == '~']
 
     course_data = filter(lambda cd: 
-                             ((len(include_sources) == 0 or languages[cd.source].upper() in include_sources) and
-                              (languages[cd.source].upper() not in exclude_sources)) and
-                             ((len(include_destinations) == 0 or languages[cd.dest].upper() in include_destinations) and
-                              (languages[cd.dest].upper() not in exclude_destinations)),
+                             (len(include) == 0 or languages[getattr(cd, source_or_dest)].upper() in include) and
+                              languages[getattr(cd, source_or_dest)].upper() not in exclude,
                              data)
     return course_data
 
@@ -128,10 +123,17 @@ def main():
     if args.phase:
         course_data = filter_phases(course_data, args.phase)
 
-    course_data = filter_languages(course_data,
-                        languages,
-                        list(map(str.upper, args.source_language)),
-                        list(map(str.upper, args.dest_language)))
+    if args.source_language:
+        course_data = filter_languages(course_data,
+                            languages,
+                            list(map(str.upper, args.source_language)),
+                            'source')
+
+    if args.dest_language:
+        course_data = filter_languages(course_data,
+                            languages,
+                            list(map(str.upper, args.dest_language)),
+                            'dest')
 
     colours = {phase:colour for (phase, colour) in zip([1,2,3], args.colours)}
 
