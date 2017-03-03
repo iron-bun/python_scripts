@@ -17,6 +17,8 @@ from requests import get
 from collections import namedtuple
 from json import load
 
+Language = namedtuple('Language', ['phase', 'source', 'dest'])
+
 def download_api_data():
     return get('https://incubator.duolingo.com/api/1/courses/list')
 
@@ -45,7 +47,13 @@ def filter_languages(data, languages, filter_arg, source_or_dest):
                              data)
     return course_data
 
-def parse_json(course_data, languages, colours):
+def parse_json(data):
+
+    course_data = [Language(direction['phase'],direction['from_language_id'],direction['learning_language_id'])
+                        for direction in data['directions']]
+    return course_data
+
+def produce_graph(course_data, languages, colours):
 
     courses = {}
     for course in sorted(course_data):
@@ -71,20 +79,8 @@ def parse_json(course_data, languages, colours):
             print('};')
     print('}')
 
-def diff_data(data, old_data):
-    courses = []
-    for direction in old_data['directions']:
-        courses.append((direction['from_language_id'], direction['learning_language_id'], direction['phase']))
-
-    idx = 0
-    while idx < len(data['directions']):
-        direction = data['directions'][idx]
-        if (direction['from_language_id'], direction['learning_language_id'], direction['phase']) in courses:
-            data['directions'].pop(idx)
-        else:
-            idx += 1
-
-    return data
+def diff_courses(courses, old_courses):
+    return [language for language in courses if language not in old_courses]
 
 def get_arguments():
     import argparse
@@ -110,15 +106,13 @@ def main():
     else:
       data = get_file_data(args.filename)
 
-    if args.diff:
-        data = diff_data(data, get_file_data(args.diff[0]))
-    
     languages = {code:details['name'] for (code,details) in data['languages'].items()}
 
-    Language = namedtuple('Language', ['phase', 'source', 'dest'])
+    course_data = parse_json(data)
 
-    course_data = [Language(direction['phase'],direction['from_language_id'],direction['learning_language_id'])
-                        for direction in data['directions']]
+    if args.diff:
+        diff_data = parse_json(get_file_data(args.diff[0]))
+        course_data = diff_courses(course_data, diff_data)
 
     if args.phase:
         course_data = filter_phases(course_data, args.phase)
@@ -137,7 +131,7 @@ def main():
 
     colours = {phase:colour for (phase, colour) in zip([1,2,3], args.colours)}
 
-    parse_json(course_data, languages, colours)
+    produce_graph(course_data, languages, colours)
 
 if __name__ == '__main__':
     main()
