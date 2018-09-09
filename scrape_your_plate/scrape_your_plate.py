@@ -148,7 +148,7 @@ class pepperplate:
         headers={'Referer':'http://{}/recipes/default.aspx'.format(self.hostname)
                          ,'Content-Type': 'application/json'
                          ,'X-Requested-With': 'XMLHttpRequest'
-                         ,'DNT':1
+                         ,'DNT':'1'
                          ,'Accept': 'application/json, text/javascript, */*; q=0.01'
                          ,'Accept-Language': 'en,de;q=0.7,en-US;q=0.3'
                          ,'Accept-Encoding': 'gzip, deflate'}
