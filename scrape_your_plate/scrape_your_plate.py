@@ -93,7 +93,7 @@ class pepperplate_recipe:
             hdr.append(tags)
             new_soup.body.append(hdr)
     
-        return new_soup.prettify('latin-1')
+        return new_soup.prettify('latin-1', formatter="html")
     
     def get_thumbnail(self):
         tmp = self.soup.find(id='cphMiddle_cphMain_imgRecipeThumb')
@@ -182,7 +182,7 @@ class pepperplate:
     def get_recipe(self, id):
         url = 'http://{}/recipes/view.aspx?id={}'.format(self.hostname, id)
         r = self.session.request('GET', url)
-        return r.content
+        return r.text
 
     def get_url(self, url):
         r = requests.get(url)
