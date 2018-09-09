@@ -81,6 +81,17 @@ class pepperplate_recipe:
             hdr = new_soup.new_tag('pre')
             hdr.append(notes.get_text())
             new_soup.append(hdr)
+
+        #Tags
+        hdr = new_soup.new_tag('h3')
+        hdr.append('Tags')
+        new_soup.body.append(hdr)
+
+        tags = self.get_tags()
+        if tags:
+            hdr = new_soup.new_tag('span', id='tags')
+            hdr.append(tags)
+            new_soup.body.append(hdr)
     
         return new_soup.prettify('latin-1')
     
@@ -88,6 +99,14 @@ class pepperplate_recipe:
         tmp = self.soup.find(id='cphMiddle_cphMain_imgRecipeThumb')
         if tmp:
             return tmp['src']
+        else:
+            return None
+
+    def get_tags(self):
+        tmp = self.soup.find(id='cphMiddle_cphMain_pnlTags')
+        if tmp:
+            tmp = tmp.find('span').get_text().strip()
+            return tmp
         else:
             return None
 
