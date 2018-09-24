@@ -86,8 +86,9 @@ def get_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='Process Duolingo course data into a dot file for graphviz')
     parser.add_argument('filename', nargs='?', help='Name of the file with the Duolingo course data. Requests current data from the Duolino API if ommitted')
-    parser.add_argument('-s', '--source_language', nargs='*', default='', type=str, help='Filter to only show courses from the SOURCE_LANGUAGE. Prefix with a "~" to exclude the language instead')
-    parser.add_argument('-d', '--dest_language', nargs='*', default='', type=str, help='Filter to only show courses to the DEST_LANGUAGE. Prefix with a "~" to exclude the language instead')
+    parser.add_argument('-f', '--filter', nargs='*', default=None, type=str, help='Filter to only show courses from or to the FILTER_LANGUAGE. Prefix with a "~" to exclude the language instead. Can be overridden by -s and -d, but why would you?')
+    parser.add_argument('-s', '--source_language', nargs='*', default=None, type=str, help='Filter to only show courses from the SOURCE_LANGUAGE. Prefix with a "~" to exclude the language instead')
+    parser.add_argument('-d', '--dest_language', nargs='*', default=None, type=str, help='Filter to only show courses to the DEST_LANGUAGE. Prefix with a "~" to exclude the language instead')
     parser.add_argument('-p', '--phase', nargs='*', type=int, default=[1,2,3], choices=[1,2,3], help='Only show courses in the selected phase(s)')
     parser.add_argument('--download', default='', action='store_const', const='Y', help='Download and display the API data for easy output to a file')
     parser.add_argument('-c', '--colours', nargs=3, metavar='COLOUR', type=str, default=['red','yellow','green'], help='Choose alternate colours for phase 1, 2 and 3')
@@ -116,6 +117,12 @@ def main():
 
     if args.phase:
         course_data = filter_phases(course_data, args.phase)
+
+    if not args.source_language and args.filter:
+        args.source_language = args.filter
+
+    if not args.dest_language and args.filter:
+        args.dest_language = args.filter
 
     if args.source_language:
         course_data = filter_languages(course_data,
